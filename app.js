@@ -2,28 +2,33 @@
 //jshint esversion: 8
 const express = require("express");
 const app = express();
+// The got module allows us to make http requests to external servers
 const got = require('got');
 const port = 5600;
+// urlencoded allows us to tap into responses 
 app.use(express.urlencoded({extended:true}));
 app.use(express.static("public"));
 
+//home route
 app.get("/", (req, res)=>{
     res.sendFile(`${__dirname}/signup.html`);
 });
 
-
+//post route
 app.post("/success", (req, res)=>{
     try {
         let name = req.body.name;
         let email = req.body.email;
+
+        // data needed by mailchimp servers to process our request.
         let data = JSON.stringify({
-            members: [{
-            email_address: email,
-            status: "subscribed",
-            merge_data: {
+            members: [{ //members is an array of objects with member details
+                email_address: email,
+                status: "subscribed",
+                merge_data: { // merge data is used to provide more details like first name etc.
                 FNAME: name
-            }
-        }]
+                }
+            }]
         }); //Always convert any POST data to JSON before posting!!
         (async () => {
             const options = {
@@ -35,16 +40,13 @@ app.post("/success", (req, res)=>{
                 body: data
             };
             try {
-                const response = await got(options);
-                console.log(response.body.statusCode);
+                const response = await got(options);                
                 
             } catch (error) {
-                console.log(error.response.body);
-                
+                console.log(error.response.body);                
             }
-        })();
-    
-        console.log(`${name} ${email}`);
+        })();    
+        
         res.sendFile(`${__dirname}/success.html`);
     } catch (error) {
         res.sendFile(`${__dirname}/failure.html`);
@@ -52,13 +54,6 @@ app.post("/success", (req, res)=>{
    
     
 });
-app.get("/success", (req, res)=>{
-    res.sendFile(`${__dirname}/success.html`);
-});
-app.get("/failure", (req, res)=>{
-    res.sendFile(`${__dirname}/failure.html`);
-});
-
 
 app.listen(port, ()=>{
     console.log("Server listening on port " + port);
