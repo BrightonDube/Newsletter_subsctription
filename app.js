@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 // The got module allows us to make http requests to external servers
 const got = require("got");
-const port = 5600;
+const port = process.env.PORT || 2000; //for heroku!!
 // urlencoded allows us to tap into responses
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public")); //static allows us to choose a folder where our static files (like css and images) will reside.
@@ -54,7 +54,7 @@ app.post("/", (req, res) => {
 });
 
 app.post("/failure", (req, res) => {
-    res.sendFile(`${__dirname}/signup.html`);
+    res.redirect('/'); //will redirect to the sign up page.
 });
 
 app.listen(port, () => {
